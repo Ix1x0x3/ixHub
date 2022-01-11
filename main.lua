@@ -1,1 +1,1 @@
-print("hi")
+local RespectedFile = game:HttpGet("");
