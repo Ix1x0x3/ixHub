@@ -1,9 +1,9 @@
-function Notify(txt, Colors, Size)
+local function Notify(txt)
 	game.StarterGui:SetCore("ChatMakeSystemMessage", {
 		Text = txt,
-		Color = Colors or Color3.fromRGB(255, 255, 255),
+		Color = Color3.fromRGB(255, 255, 255),
 		Font = Enum.Font.Code,
-		FontSize = Size or Enum.FontSize.Size48
+		FontSize = Enum.FontSize.Size48
 	})
 end
 
