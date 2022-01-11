@@ -1,7 +1,9 @@
-function Notify(txt)
-  game.StarterGui:SetCore("SendNotification", {
-			Title = "Ix Hub",
-			Text = Text
+function Notify(txt, Colors, Size)
+	game.StarterGui:SetCore("ChatMakeSystemMessage", {
+		Text = Message,
+		Color = Colors or Color3.fromRGB(255, 255, 255),
+		Font = Enum.Font.Code,
+		FontSize = Size or Enum.FontSize.Size48
 	})
 end
 
