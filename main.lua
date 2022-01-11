@@ -12,7 +12,7 @@ Notify("Thanks for using ixHub! We are a free hub, so if you bought this, please
 local RespectedFile = game:HttpGet("https://raw.githubusercontent.com/Ix1x0x3/ixHub/main/games/"..game.PlaceId..".ix",true);
 
 if RespectedFile == "404: Not Found" then
-  return Notify("Your game isn't in ixHub!");
+	Notify("Your game isn't in ixHub!");
 end
 
 Notify("Script loaded for "..game.Name..".")
