@@ -4,7 +4,8 @@ local Data = {
     LoopkillQueue = {},
     States = {},
     Prefix = ";",
-    BuyGamepass = game:GetService("MarketplaceService"):UserOwnsGamePassAsync(tonumber((game:GetService("Players").LocalPlayer.CharacterAppearance):split('=')[#((game:GetService("Players").LocalPlayer.CharacterAppearance):split('='))]), 96651)
+    BuyGamepass = game:GetService("MarketplaceService"):UserOwnsGamePassAsync(tonumber((game:GetService("Players").LocalPlayer.CharacterAppearance):split('=')[#((game:GetService("Players").LocalPlayer.CharacterAppearance):split('='))]), 96651),
+    BLPlayers = {},
 }
 
 local KillQueue = {}
@@ -53,17 +54,15 @@ function Notification(Text)
     local Tooltip = LPlayer.PlayerGui.Home.hud.AddedGui.tooltip;
     Tooltip.Visible = true;
     Tooltip.BackgroundTransparency = 0.25;
-    Tooltip.BackgroundColor3 = Color3.fromRGB(0,255,60)
     Tooltip.TextLabel.TextTransparency = 0;
     Tooltip.ImageLabel.ImageTransparency = 0.41;
     Tooltip.TextLabel.ZIndex = 10;
     Tooltip.TextLabel.Text = Text;
-	delay(3, function()
-	    game:GetService("TweenService"):Create(Tooltip.ImageLabel,TweenInfo.new(1.5), {ImageTransparency = 1}):Play()
-	    game:GetService("TweenService"):Create(Tooltip.TextLabel,TweenInfo.new(1.5), {TextTransparency = 1}):Play()
-	    game:GetService("TweenService"):Create(Tooltip,TweenInfo.new(1.5), {BackgroundTransparency = 1}):Play()
-	    delay(1.5, function() Tooltip.BackgroundColor3 = Color3.fromRGB(0,69,118) end)
-	end)
+    delay(3, function()
+        game:GetService("TweenService"):Create(Tooltip.ImageLabel,TweenInfo.new(1.5), {ImageTransparency = 1}):Play()
+        game:GetService("TweenService"):Create(Tooltip.TextLabel,TweenInfo.new(1.5), {TextTransparency = 1}):Play()
+        game:GetService("TweenService"):Create(Tooltip,TweenInfo.new(1.5), {BackgroundTransparency = 1}):Play()
+    end)
 end
 
 function Chat(Text, Whisper)
@@ -76,11 +75,11 @@ end
 
 function ClientChat(Text, Colors, Size, Font)
     game.StarterGui:SetCore("ChatMakeSystemMessage", {
-		Text = Text,
-		Color = Colors or Color3.fromRGB(255, 255, 255),
-		Font = Enum.Font[Font] or Enum.Font.Code,
-		FontSize = Size or Enum.FontSize.Size48
-	})
+        Text = Text,
+        Color = Colors or Color3.fromRGB(255, 255, 255),
+        Font = Enum.Font[Font] or Enum.Font.Code,
+        FontSize = Size or Enum.FontSize.Size48
+    })
 end
 
 function TeamEvent(Team)
@@ -101,11 +100,11 @@ function LoadChr(Team)
 end
 
 function GetTeam()
-	return game.Players.LocalPlayer.TeamColor.Name
+    return game.Players.LocalPlayer.TeamColor.Name
 end
 
 function GetCamPos()
-	return workspace.CurrentCamera.CFrame
+    return workspace.CurrentCamera.CFrame
 end
 
 function Respawn()
@@ -184,9 +183,9 @@ function GunMod(mod,value)
     end
 end
 
-function GetPlayer(String) -- Credit to Timeless/xFunnieuss
+function GetPlayer(Stringa)
     local Found = {}
-    local strl = String:lower()
+    local strl = Stringa:lower();
     if strl == "all" then
         for i,v in pairs(game:GetService("Players"):GetPlayers()) do
             table.insert(Found,v)
@@ -202,233 +201,234 @@ function GetPlayer(String) -- Credit to Timeless/xFunnieuss
             if v.Name == LPlayer.Name then
                 table.insert(Found,v)
             end
-        end  
+        end
     else
         for _, Player in ipairs(game.Players:GetPlayers()) do
-            if string.lower(Player.Name):match(string.lower(strl)) or string.lower(Player.DisplayName):match(string.lower(strl)) then
+            if string.lower(Player.Name):match(string.lower(Stringa)) or string.lower(Player.DisplayName):match(string.lower(Stringa)) then
                 table.insert(Found, Player)
             end
         end
+        Found = {Found[1]};
     end
     return Found    
 end
 
 function Teleport(Player, Position)
-	if Player == nil or Position == nil or Player.Character.Humanoid:GetState() == Enum.HumanoidStateType.Seated then return end
-	local savedcf = GetPos()
-	workspace.Remote.loadchar:InvokeServer()
-	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = savedcf
-	workspace.Remote.ItemHandler:InvokeServer(workspace.Prison_ITEMS.giver["M9"].ITEMPICKUP)
-	local CHAR = game.Players.LocalPlayer.Character
-	CHAR.Humanoid.Name = "1"
-	local c = CHAR["1"]:Clone()
-	c.Name = "Humanoid"
-	c.Parent = CHAR
-	CHAR["1"]:Destroy()
-	game.Workspace.CurrentCamera.CameraSubject = CHAR
-	CHAR.Animate.Disabled = true
-	wait()
-	CHAR.Animate.Disabled = false
-	CHAR.Humanoid.DisplayDistanceType = "None"
-	game.Players.LocalPlayer:FindFirstChild("Backpack"):FindFirstChild("M9").Parent = CHAR
-	local STOP = 0
-	repeat wait(.1)
-		STOP = STOP + 1
-		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 0.75)
-	until (not game.Players.LocalPlayer.Character:FindFirstChild("M9") or not game.Players.LocalPlayer.Character.HumanoidRootPart or not Player.Character.HumanoidRootPart or not game.Players.LocalPlayer.Character.HumanoidRootPart.Parent or not Player.Character.HumanoidRootPart.Parent or STOP > 500) and STOP > 3
-	local STOP_2 = 0
-	repeat wait()
-		STOP_2 = STOP_2 + 1
-		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Position
-	until STOP_2 > 10
-	workspace.Remote.loadchar:InvokeServer()
-	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = savedcf
+    if Player == nil or Position == nil or Player.Character.Humanoid:GetState() == Enum.HumanoidStateType.Seated then return end
+    local savedcf = GetPos()
+    workspace.Remote.loadchar:InvokeServer()
+    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = savedcf
+    workspace.Remote.ItemHandler:InvokeServer(workspace.Prison_ITEMS.giver["M9"].ITEMPICKUP)
+    local CHAR = game.Players.LocalPlayer.Character
+    CHAR.Humanoid.Name = "1"
+    local c = CHAR["1"]:Clone()
+    c.Name = "Humanoid"
+    c.Parent = CHAR
+    CHAR["1"]:Destroy()
+    game.Workspace.CurrentCamera.CameraSubject = CHAR
+    CHAR.Animate.Disabled = true
+    wait()
+    CHAR.Animate.Disabled = false
+    CHAR.Humanoid.DisplayDistanceType = "None"
+    game.Players.LocalPlayer:FindFirstChild("Backpack"):FindFirstChild("M9").Parent = CHAR
+    local STOP = 0
+    repeat wait(.1)
+        STOP = STOP + 1
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 0.75)
+    until (not game.Players.LocalPlayer.Character:FindFirstChild("M9") or not game.Players.LocalPlayer.Character.HumanoidRootPart or not Player.Character.HumanoidRootPart or not game.Players.LocalPlayer.Character.HumanoidRootPart.Parent or not Player.Character.HumanoidRootPart.Parent or STOP > 500) and STOP > 3
+    local STOP_2 = 0
+    repeat wait()
+        STOP_2 = STOP_2 + 1
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Position
+    until STOP_2 > 10
+    workspace.Remote.loadchar:InvokeServer()
+    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = savedcf
 end
 
 function TeleportV(Player, Player2)
-	if Player == nil or Player2 == nil or Player.Character.Humanoid:GetState() == Enum.HumanoidStateType.Seated then return end
-	local savedcf = GetPos()
-	workspace.Remote.loadchar:InvokeServer()
-	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = savedcf
-	workspace.Remote.ItemHandler:InvokeServer(workspace.Prison_ITEMS.giver["M9"].ITEMPICKUP)
-	local CHAR = game.Players.LocalPlayer.Character
-	CHAR.Humanoid.Name = "1"
-	local c = CHAR["1"]:Clone()
-	c.Name = "Humanoid"
-	c.Parent = CHAR
-	CHAR["1"]:Destroy()
-	game.Workspace.CurrentCamera.CameraSubject = CHAR
-	CHAR.Animate.Disabled = true
-	wait()
-	CHAR.Animate.Disabled = false
-	CHAR.Humanoid.DisplayDistanceType = "None"
-	game.Players.LocalPlayer:FindFirstChild("Backpack"):FindFirstChild("M9").Parent = CHAR
-	local STOP = 0
-	repeat wait(.1)
-		STOP = STOP + 1
-		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 0.75)
-	until (not game.Players.LocalPlayer.Character:FindFirstChild("M9") or not game.Players.LocalPlayer.Character.HumanoidRootPart or not Player.Character.HumanoidRootPart or not game.Players.LocalPlayer.Character.HumanoidRootPart.Parent or not Player.Character.HumanoidRootPart.Parent or STOP > 500) and STOP > 3
-	local STOP_2 = 0
-	repeat wait()
-		STOP_2 = STOP_2 + 1
-		game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Player2.Character.HumanoidRootPart.CFrame
-	until STOP_2 > 10
-	workspace.Remote.loadchar:InvokeServer()
-	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = savedcf
+    if Player == nil or Player2 == nil or Player.Character.Humanoid:GetState() == Enum.HumanoidStateType.Seated then return end
+    local savedcf = GetPos()
+    workspace.Remote.loadchar:InvokeServer()
+    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = savedcf
+    workspace.Remote.ItemHandler:InvokeServer(workspace.Prison_ITEMS.giver["M9"].ITEMPICKUP)
+    local CHAR = game.Players.LocalPlayer.Character
+    CHAR.Humanoid.Name = "1"
+    local c = CHAR["1"]:Clone()
+    c.Name = "Humanoid"
+    c.Parent = CHAR
+    CHAR["1"]:Destroy()
+    game.Workspace.CurrentCamera.CameraSubject = CHAR
+    CHAR.Animate.Disabled = true
+    wait()
+    CHAR.Animate.Disabled = false
+    CHAR.Humanoid.DisplayDistanceType = "None"
+    game.Players.LocalPlayer:FindFirstChild("Backpack"):FindFirstChild("M9").Parent = CHAR
+    local STOP = 0
+    repeat wait(.1)
+        STOP = STOP + 1
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 0.75)
+    until (not game.Players.LocalPlayer.Character:FindFirstChild("M9") or not game.Players.LocalPlayer.Character.HumanoidRootPart or not Player.Character.HumanoidRootPart or not game.Players.LocalPlayer.Character.HumanoidRootPart.Parent or not Player.Character.HumanoidRootPart.Parent or STOP > 500) and STOP > 3
+    local STOP_2 = 0
+    repeat wait()
+        STOP_2 = STOP_2 + 1
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = Player2.Character.HumanoidRootPart.CFrame
+    until STOP_2 > 10
+    workspace.Remote.loadchar:InvokeServer()
+    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = savedcf
 end
 
 function CreateBeam(Player, Distance, Position)
-	if Player then
-		pcall(function()
-			local Backpack = game.Players.LocalPlayer.Backpack
-			local Character = game.Players.LocalPlayer.Character
-			local Gun = Backpack:FindFirstChild("Remington 870") or Character:FindFirstChild("Remington 870")
-			if not Gun then
-				workspace.Remote.ItemHandler:InvokeServer(workspace.Prison_ITEMS.giver["Remington 870"].ITEMPICKUP)
-			end
-			Gun = Backpack:FindFirstChild("Remington 870") or Character:FindFirstChild("Remington 870")
-			local Head = Player.Character.Head
-			if Head and Player and Character and Backpack and Gun and Distance and Position then
-				game.ReplicatedStorage.ShootEvent:FireServer({
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head}
-				}, Gun)
-			end
-			Gun.Parent = game.Players.LocalPlayer.Character
+    if Player then
+        pcall(function()
+            local Backpack = game.Players.LocalPlayer.Backpack
+            local Character = game.Players.LocalPlayer.Character
+            local Gun = Backpack:FindFirstChild("Remington 870") or Character:FindFirstChild("Remington 870")
+            if not Gun then
+                workspace.Remote.ItemHandler:InvokeServer(workspace.Prison_ITEMS.giver["Remington 870"].ITEMPICKUP)
+            end
+            Gun = Backpack:FindFirstChild("Remington 870") or Character:FindFirstChild("Remington 870")
+            local Head = Player.Character.Head
+            if Head and Player and Character and Backpack and Gun and Distance and Position then
+                game.ReplicatedStorage.ShootEvent:FireServer({
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head}
+                }, Gun)
+            end
+            Gun.Parent = game.Players.LocalPlayer.Character
             LPlayer.Character.Humanoid:UnequipTools()
-			game.Players.LocalPlayer.Backpack:FindFirstChild("Remington 870"):Destroy()
-		end)
-	end
+            game.Players.LocalPlayer.Backpack:FindFirstChild("Remington 870"):Destroy()
+        end)
+    end
 end
 
 function CreateBeam2(Player, Distance, Position)
-	if Player then
-		pcall(function()
-			local Backpack = game.Players.LocalPlayer.Backpack
-			local Character = game.Players.LocalPlayer.Character
-			local Gun = Backpack:FindFirstChild("AK-47") or Character:FindFirstChild("AK-47")
-			if not Gun then
-				workspace.Remote.ItemHandler:InvokeServer(workspace.Prison_ITEMS.giver["AK-47"].ITEMPICKUP)
-			end
-			Gun = Backpack:FindFirstChild("AK-47") or Character:FindFirstChild("AK-47")
-			local Head = Player.Character.Head
-			if Head and Player and Character and Backpack and Gun and Distance and Position then
-				game.ReplicatedStorage.ShootEvent:FireServer({
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-				}, Gun)
-			end
-			Gun.Parent = game.Players.LocalPlayer.Character
+    if Player then
+        pcall(function()
+            local Backpack = game.Players.LocalPlayer.Backpack
+            local Character = game.Players.LocalPlayer.Character
+            local Gun = Backpack:FindFirstChild("AK-47") or Character:FindFirstChild("AK-47")
+            if not Gun then
+                workspace.Remote.ItemHandler:InvokeServer(workspace.Prison_ITEMS.giver["AK-47"].ITEMPICKUP)
+            end
+            Gun = Backpack:FindFirstChild("AK-47") or Character:FindFirstChild("AK-47")
+            local Head = Player.Character.Head
+            if Head and Player and Character and Backpack and Gun and Distance and Position then
+                game.ReplicatedStorage.ShootEvent:FireServer({
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                }, Gun)
+            end
+            Gun.Parent = game.Players.LocalPlayer.Character
             LPlayer.Character.Humanoid:UnequipTools()
-			game.Players.LocalPlayer.Backpack:FindFirstChild("AK-47"):Destroy()
-		end)
-	end
+            game.Players.LocalPlayer.Backpack:FindFirstChild("AK-47"):Destroy()
+        end)
+    end
 end
  
 function CreateBeam3(Player, Distance, Position)
-	if Player then
-		pcall(function()
-			local Backpack = game.Players.LocalPlayer.Backpack
-			local Character = game.Players.LocalPlayer.Character
-			local Gun = Backpack:FindFirstChild("M9") or Character:FindFirstChild("M9")
-			if not Gun then
-				workspace.Remote.ItemHandler:InvokeServer(workspace.Prison_ITEMS.giver["M9"].ITEMPICKUP)
-			end
-			Gun = Backpack:FindFirstChild("M9") or Character:FindFirstChild("M9")
-			local Head = Player.Character.Head
-			if Head and Player and Character and Backpack and Gun and Distance and Position then
-				game.ReplicatedStorage.ShootEvent:FireServer({
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
-					{["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head}
-				}, Gun)
-			end
-		end)
-	end
+    if Player then
+        pcall(function()
+            local Backpack = game.Players.LocalPlayer.Backpack
+            local Character = game.Players.LocalPlayer.Character
+            local Gun = Backpack:FindFirstChild("M9") or Character:FindFirstChild("M9")
+            if not Gun then
+                workspace.Remote.ItemHandler:InvokeServer(workspace.Prison_ITEMS.giver["M9"].ITEMPICKUP)
+            end
+            Gun = Backpack:FindFirstChild("M9") or Character:FindFirstChild("M9")
+            local Head = Player.Character.Head
+            if Head and Player and Character and Backpack and Gun and Distance and Position then
+                game.ReplicatedStorage.ShootEvent:FireServer({
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head},
+                    {["RayObject"] = Ray.new(Vector3.new(), Vector3.new()),["Distance"] = Distance,["Cframe"] = Position,["Hit"] = Head}
+                }, Gun)
+            end
+        end)
+    end
 end
 
 function Beam(Player, Distance, Time)
-	if Player and Distance then
-		local RunService = game:GetService("RunService")
-		RunService:BindToRenderStep(Player.Name, math.huge, function()
-			coroutine.wrap(function()
-				CreateBeam(Player, Distance, Player.Character.HumanoidRootPart.CFrame)
-			end)()
-		end)
-		delay(Time, function()
-			pcall(function()
-				RunService:UnbindFromRenderStep(Player.Name)
-			end)
-		end)
-	end
+    if Player and Distance then
+        local RunService = game:GetService("RunService")
+        RunService:BindToRenderStep(Player.Name, math.huge, function()
+            coroutine.wrap(function()
+                CreateBeam(Player, Distance, Player.Character.HumanoidRootPart.CFrame)
+            end)()
+        end)
+        delay(Time, function()
+            pcall(function()
+                RunService:UnbindFromRenderStep(Player.Name)
+            end)
+        end)
+    end
 end
  
 function LagBeam(Player, Distance, Time)
-	if Player and Distance then
-		local RunService = game:GetService("RunService")
-		RunService:BindToRenderStep(Player.Name, math.huge, function()
-			coroutine.wrap(function()
-				CreateBeam(Player, Distance, Player.Character.HumanoidRootPart.CFrame)
-			end)()
-			coroutine.wrap(function()
-				CreateBeam2(Player, Distance, Player.Character.HumanoidRootPart.CFrame)
-			end)()
-			coroutine.wrap(function()
-				CreateBeam3(Player, Distance, Player.Character.HumanoidRootPart.CFrame)
-			end)()
-		end)
-		delay(Time, function()
-			pcall(function()
-				RunService:UnbindFromRenderStep(Player.Name)
-			end)
-		end)
-	end
+    if Player and Distance then
+        local RunService = game:GetService("RunService")
+        RunService:BindToRenderStep(Player.Name, math.huge, function()
+            coroutine.wrap(function()
+                CreateBeam(Player, Distance, Player.Character.HumanoidRootPart.CFrame)
+            end)()
+            coroutine.wrap(function()
+                CreateBeam2(Player, Distance, Player.Character.HumanoidRootPart.CFrame)
+            end)()
+            coroutine.wrap(function()
+                CreateBeam3(Player, Distance, Player.Character.HumanoidRootPart.CFrame)
+            end)()
+        end)
+        delay(Time, function()
+            pcall(function()
+                RunService:UnbindFromRenderStep(Player.Name)
+            end)
+        end)
+    end
 end
 
 function MeleeEvent(Plr)
@@ -443,62 +443,65 @@ function OldKill(Player)
     TeamEvent("Medium stone grey")
     Goto(MyPos)
     workspace.CurrentCamera.CFrame = MyCamPos;
-	pcall(function()
-		local Gun = game.Players.LocalPlayer.Character:FindFirstChild("Remington 870") or game.Players.LocalPlayer.Backpack:FindFirstChild("Remington 870")
+    pcall(function()
+        local Gun = game.Players.LocalPlayer.Character:FindFirstChild("Remington 870") or game.Players.LocalPlayer.Backpack:FindFirstChild("Remington 870")
         if Gun == nil then GiveItem("Remington 870"); HadGun = false; end;
         Gun = game.Players.LocalPlayer.Character:FindFirstChild("Remington 870") or game.Players.LocalPlayer.Backpack:FindFirstChild("Remington 870")
-		local FireEvent = {
-			[1] = {
-				["RayObject"] = Ray.new(Vector3.new(), Vector3.new()), 
-				["Distance"] = 0, 
-				["Cframe"] = CFrame.new(), 
-				["Hit"] = workspace[Player.Name].Head
-			}, [2] = {
-				["RayObject"] = Ray.new(Vector3.new(), Vector3.new()), 
-				["Distance"] = 0, 
-				["Cframe"] = CFrame.new(), 
-				["Hit"] = workspace[Player.Name].Head
-			}, [3] = {
-				["RayObject"] = Ray.new(Vector3.new(), Vector3.new()), 
-				["Distance"] = 0, 
-				["Cframe"] = CFrame.new(), 
-				["Hit"] = workspace[Player.Name].Head
-			}, [4] = {
-				["RayObject"] = Ray.new(Vector3.new(), Vector3.new()), 
-				["Distance"] = 0, 
-				["Cframe"] = CFrame.new(), 
-				["Hit"] = workspace[Player.Name].Head
-			}, [5] = {
-				["RayObject"] = Ray.new(Vector3.new(), Vector3.new()), 
-				["Distance"] = 0, 
-				["Cframe"] = CFrame.new(), 
-				["Hit"] = workspace[Player.Name].Head
-			}, [6] = {
-				["RayObject"] = Ray.new(Vector3.new(), Vector3.new()), 
-				["Distance"] = 0, 
-				["Cframe"] = CFrame.new(), 
-				["Hit"] = workspace[Player.Name].Head
-			}, [7] = {
-				["RayObject"] = Ray.new(Vector3.new(), Vector3.new()), 
-				["Distance"] = 0, 
-				["Cframe"] = CFrame.new(), 
-				["Hit"] = workspace[Player.Name].Head
-			}, [8] = {
-				["RayObject"] = Ray.new(Vector3.new(), Vector3.new()), 
-				["Distance"] = 0, 
-				["Cframe"] = CFrame.new(), 
-				["Hit"] = workspace[Player.Name].Head
-			}
-		}
+        local FireEvent = {
+            [1] = {
+                ["RayObject"] = Ray.new(Vector3.new(), Vector3.new()), 
+                ["Distance"] = 0, 
+                ["Cframe"] = CFrame.new(), 
+                ["Hit"] = Player.Character.Head
+            }, [2] = {
+                ["RayObject"] = Ray.new(Vector3.new(), Vector3.new()), 
+                ["Distance"] = 0, 
+                ["Cframe"] = CFrame.new(), 
+                ["Hit"] = Player.Character.Head
+            }, [3] = {
+                ["RayObject"] = Ray.new(Vector3.new(), Vector3.new()), 
+                ["Distance"] = 0, 
+                ["Cframe"] = CFrame.new(), 
+                ["Hit"] = Player.Character.Head
+            }, [4] = {
+                ["RayObject"] = Ray.new(Vector3.new(), Vector3.new()), 
+                ["Distance"] = 0, 
+                ["Cframe"] = CFrame.new(), 
+                ["Hit"] = Player.Character.Head
+            }, [5] = {
+                ["RayObject"] = Ray.new(Vector3.new(), Vector3.new()), 
+                ["Distance"] = 0, 
+                ["Cframe"] = CFrame.new(), 
+                ["Hit"] = Player.Character.Head
+            }, [6] = {
+                ["RayObject"] = Ray.new(Vector3.new(), Vector3.new()), 
+                ["Distance"] = 0, 
+                ["Cframe"] = CFrame.new(), 
+                ["Hit"] = Player.Character.Head
+            }, [7] = {
+                ["RayObject"] = Ray.new(Vector3.new(), Vector3.new()), 
+                ["Distance"] = 0, 
+                ["Cframe"] = CFrame.new(), 
+                ["Hit"] = Player.Character.Head
+            }, [8] = {
+                ["RayObject"] = Ray.new(Vector3.new(), Vector3.new()), 
+                ["Distance"] = 0, 
+                ["Cframe"] = CFrame.new(), 
+                ["Hit"] = Player.Character.Head
+            }
+        }
  
-		game:GetService("ReplicatedStorage").ShootEvent:FireServer(FireEvent, Gun)
-	end)
+        game:GetService("ReplicatedStorage").ShootEvent:FireServer(FireEvent, Gun)
+    end)
     TeamEvent(MyTeam)
     Goto(MyPos)
     workspace.CurrentCamera.CFrame = MyCamPos;
 end
 
 function Kill(plr, method)
+    local pooTable = {}
+    local lolTable = {}
+    local pogUsed;
     if KillQueue[plr.UserId] ~= nil or KillQueue[plr.UserId] == true then return end;
     KillQueue[plr.UserId] = true
     local SwitchedTeams = false;
@@ -550,64 +553,110 @@ function Kill(plr, method)
     }
     game.ReplicatedStorage.ShootEvent:FireServer(unpack(args))
     game.ReplicatedStorage.ShootEvent:FireServer(unpack(args))
-    coroutine.wrap(function()
-        wait(0.5)
-        if plr.Character.Humanoid.Health ~= 0 then
-            OldKill(plr)
-        end
-    end)()
     if SwitchedTeams then workspace.Remote.TeamEvent:FireServer(oldcolor) end;
     if hadthegun == false then LPlayer.Backpack:FindFirstChild(gun):Destroy() end;
     KillQueue[plr.UserId] = nil;
+    TeamEvent("Bright orange")
+    for i,v in next, LPlayer.Backpack:GetChildren() do
+        if v:IsA("Tool") and v.Name == "AK-47" or v.Name == "Remington 870" or v.Name == "M9" or v.Name == "M4A1" or v.Name == "Taser" then
+            table.insert(pooTable, v.Name)
+            table.insert(lolTable, require(v.GunStates))
+        end
+    end
+    for i,v in next, LPlayer.Character:GetChildren() do
+        if v:IsA("Tool") and v.Name == "AK-47" or v.Name == "Remington 870" or v.Name == "M9" or v.Name == "M4A1" or v.Name == "Taser" then
+            table.insert(pooTable, v.Name)
+            table.insert(lolTable, require(v.GunStates))
+            pogUsed = v.Name;
+        end
+    end
+    local SavedCF = LPlayer.Character.HumanoidRootPart.CFrame;
+    local SavedCamCF = GetCamPos();
+    local SavedTeam = GetTeam()
+    if SavedTeam == "Medium stone grey" then TeamEvent("Bright orange") end;
+    workspace.Remote.loadchar:InvokeServer(nil, BrickColor.new(SavedTeam).Name)
+    wait()
+    LPlayer.Character.ForceField:Destroy();
+    if SavedTeam == "Really red" then Goto(CFrames["Criminal Base"]) end;
+    wait()
+    LPlayer.Character.HumanoidRootPart.CFrame = SavedCF;
+    workspace.Camera.CFrame = SavedCamCF;
+    for i,v in pairs(pooTable) do
+        GiveItem(v)
+        repeat
+            wait()
+        until LPlayer.Backpack:FindFirstChild(v) or LPlayer.Character:FindFirstChild(v)
+        if pogUsed == v then
+            if LPlayer.Backpack:FindFirstChild(v) then
+                LPlayer.Backpack:FindFirstChild(v).Parent = LPlayer.Character
+            end;
+        end
+    end
+end
+
+function Punish(Target)
+    Teleport(Target, CFrame.new(2048,9e18,2048))
 end
 
 function KillAll()
-    local oldcolor = LPlayer.TeamColor.Name
+    	
     workspace.Remote.TeamEvent:FireServer("Medium stone grey")
-    local gun = "AK-47"
-    workspace.Remote.ItemHandler:InvokeServer(workspace.Prison_ITEMS.giver[gun].ITEMPICKUP)
-    game.ReplicatedStorage.ReloadEvent:FireServer(LPlayer.Backpack[gun] or LPlayer.Character[gun])
-    for i,plr in pairs(game:GetService("Players"):GetPlayers()) do
-        wait(0.3)
-        local args = {
-            [1] = {
-                [1] = {
-                    ["RayObject"] = Ray.new(Vector3.new(888.39965820313, 101.48999023438, 2388.4970703125), Vector3.new(-392.79403686523, 32.449165344238, 68.263359069824)),
-                    ["Distance"] = 23.821922302246,
-                    ["Cframe"] = CFrame.new(Vector3.new(875.65051269531, 102.33503723145, 2392.59375), Vector3.new(0.99490803480148, -0.09966829419136, -0.014973159879446)),
-                    ["Hit"] = workspace[plr.Name].Head
-                },
-                [2] = {
-                    ["RayObject"] = Ray.new(Vector3.new(888.39965820313, 101.48999023438, 2388.4970703125), Vector3.new(-392.48315429688, 33.763328552246, 69.404510498047)),
-                    ["Distance"] = 23.831678390503,
-                    ["Cframe"] = CFrame.new(Vector3.new(875.65051269531, 102.37702178955, 2392.6313476563), Vector3.new(0.99450075626373, -0.10315123945475, -0.018112052232027)),
-                    ["Hit"] = workspace[plr.Name].Head
-                },
-                [3] = {
-                    ["RayObject"] = Ray.new(Vector3.new(888.39965820313, 101.48999023438, 2388.4970703125), Vector3.new(-393.71801757813, 24.107759475708, 66.369728088379)),
-                    ["Distance"] = 23.773683547974,
-                    ["Cframe"] = CFrame.new(Vector3.new(875.65051269531, 102.07206726074, 2392.5297851563), Vector3.new(0.99692684412003, -0.077747754752636, -0.0096018556505442)),
-                    ["Hit"] = workspace[plr.Name].Head
-                },
-                [4] = {
-                    ["RayObject"] = Ray.new(Vector3.new(888.39965820313, 101.48999023438, 2388.4970703125), Vector3.new(-395.65017700195, 28.086275100708, 51.692462921143)),
-                    ["Distance"] = 23.802883148193,
-                    ["Cframe"] = CFrame.new(Vector3.new(875.65051269531, 102.19207000732, 2392.0632324219), Vector3.new(0.99570387601852, -0.087735749781132, 0.029601030051708)),
-                    ["Hit"] = workspace[plr.Name].Head
-                },
-                [5] = {
-                    ["RayObject"] = Ray.new(Vector3.new(888.39965820313, 101.48999023438, 2388.4970703125), Vector3.new(-395.87457275391, 31.009611129761, 48.184143066406)),
-                    ["Distance"] = 23.82692527771,
-                    ["Cframe"] = CFrame.new(Vector3.new(875.65051269531, 102.28240203857, 2391.9533691406), Vector3.new(0.99469912052155, -0.095229558646679, 0.038792934268713)),
-                    ["Hit"] = workspace[plr.Name].Head
-                }
-            },
-            [2] = LPlayer.Backpack:FindFirstChild(gun) or LPlayer.Character:FindFirstChild(gun)
+
+    game.Workspace.Remote.ItemHandler:InvokeServer(workspace.Prison_ITEMS.giver["Remington 870"].ITEMPICKUP)	
+
+    wait(0.5)
+    local function killa(a)
+        local A_1 =
+        {
+        [1] =
+        {
+        ["RayObject"] = Ray.new(Vector3.new(845.555908, 101.429337, 2269.43945), Vector3.new(-391.152252, 8.65560055, -83.2166901)),
+        ["Distance"] = 3.2524313926697,
+        ["Cframe"] = CFrame.new(840.310791, 101.334137, 2267.87988, 0.0636406094, 0.151434347, -0.986416459, 0, 0.988420188, 0.151741937, 0.997972965, -0.00965694897, 0.0629036576),
+        ["Hit"] = a.Character.Head
+        },
+        [2] =
+        {
+        ["RayObject"] = Ray.new(Vector3.new(845.555908, 101.429337, 2269.43945), Vector3.new(-392.481476, -8.44939327, -76.7261353)),
+        ["Distance"] = 3.2699294090271,
+        ["Cframe"] = CFrame.new(840.290466, 101.184189, 2267.93506, 0.0964837447, 0.0589403138, -0.993587971, 4.65661287e-10, 0.998245299, 0.0592165813, 0.995334625, -0.00571343815, 0.0963144377),
+        ["Hit"] = a.Character.Head
+        },
+        [3] =
+        {
+        ["RayObject"] = Ray.new(Vector3.new(845.555908, 101.429337, 2269.43945), Vector3.new(-389.21701, -2.50536323, -92.2163162)),
+        ["Distance"] = 3.1665518283844,
+        ["Cframe"] = CFrame.new(840.338867, 101.236496, 2267.80371, 0.0166504811, 0.0941716284, -0.995416701, 1.16415322e-10, 0.995554805, 0.0941846818, 0.999861419, -0.00156822044, 0.0165764652),
+        ["Hit"] = a.Character.Head
+        },
+        [4] =
+        {
+        ["RayObject"] = Ray.new(Vector3.new(845.555908, 101.429337, 2269.43945), Vector3.new(-393.353973, 3.13988972, -72.5452042)),
+        ["Distance"] = 3.3218522071838,
+        ["Cframe"] = CFrame.new(840.277222, 101.285957, 2267.9707, 0.117109694, 0.118740402, -0.985994935, -1.86264515e-09, 0.992826641, 0.119563118, 0.993119001, -0.0140019981, 0.116269611),
+        ["Hit"] = a.Character.Head
+        },
+        [5] =
+        {
+        ["RayObject"] = Ray.new(Vector3.new(845.555908, 101.429337, 2269.43945), Vector3.new(-390.73172, 3.2097764, -85.5477524)),
+        ["Distance"] = 3.222757101059,
+        ["Cframe"] = CFrame.new(840.317993, 101.286423, 2267.86035, 0.0517584644, 0.123365127, -0.991010666, 0, 0.992340803, 0.123530701, 0.99865967, -0.00639375951, 0.0513620302),
+        ["Hit"] = a.Character.Head
         }
-        game.ReplicatedStorage.ShootEvent:FireServer(unpack(args))
-        game.ReplicatedStorage.ShootEvent:FireServer(unpack(args))
+        }
+        local A_2 = game.Players.LocalPlayer.Backpack["Remington 870"]
+        local Event = game:GetService("ReplicatedStorage").ShootEvent
+        Event:FireServer(A_1, A_2)
+        Event:FireServer(A_1, A_2)
     end
-    workspace.Remote.TeamEvent:FireServer(oldcolor)
+
+    for i,v in pairs(game.Players:GetChildren())do
+        if v.Name ~= game.Players.LocalPlayer.Name then
+            killa(v)
+        end
+    end
+    wait(1)
+    workspace.Remote.TeamEvent:FireServer("Bright orange")
 end
 
 
@@ -627,6 +676,14 @@ Loops.PlayerChatted = LPlayer.Chatted:Connect(function(Msg)
 
     if Command("test") then
         Notification("test")
+    end
+
+    if Command("punish") then
+        local Targets = GetPlayer(Args[2])
+
+        for i,Target in pairs(Targets) do
+            if Target ~= LPlayer then Punish(Target) end;
+        end
     end
 
     if Command("re") then
@@ -665,6 +722,10 @@ Loops.PlayerChatted = LPlayer.Chatted:Connect(function(Msg)
     if Command("kill") then
         local Targets = GetPlayer(Args[2]);
 
+        if (Args[2]=="all") then
+            return KillAll()
+        end
+
         for i,Target in pairs(Targets) do
             if Target.Name ~= LPlayer.Name then
                 Kill(Target)
@@ -679,13 +740,12 @@ Loops.PlayerChatted = LPlayer.Chatted:Connect(function(Msg)
 
         for i,Target in pairs(Targets) do
             if Target.Name ~= LPlayer.Name then
-                Loops[Target.UserId.."_LOOPKILL"] = game["Run Service"].RenderStepped:Connect(function()
-                    if workspace[Target.Name].Humanoid.Health ~= 0 and not workspace[Target.Name]:FindFirstChild("ForceField") then
-                        print("Killing "..Target.Name)
+                coroutine.wrap(function()
+                    Loops[Target.UserId.."LOOPKILL"] = game["Run Service"].RenderStepped:Connect(function()
+                        wait(1)
                         Kill(Target)
-                    end
-                end)
-                Notification("Attempted loopkill on "..Target.Name..". Loopkill ID: "..Target.UserId.."_LOOPKILL")
+                    end)
+                end)()
             end
         end;
 
@@ -697,9 +757,9 @@ Loops.PlayerChatted = LPlayer.Chatted:Connect(function(Msg)
 
         for i,Target in pairs(Targets) do
             if Target.Name ~= LPlayer.Name then
-                if Loops[Target.UserId.."_LOOPKILL"] ~= nil then
-                    Loops[Target.UserId.."_LOOPKILL"]:Disconnect()
-                    Notification("Removed loopkill ID "..Target.UserId.."_LOOPKILL !")
+                if Loops[Target.UserId.."LOOPKILL"] ~= nil then
+                    Loops[Target.UserId.."LOOPKILL"]:Disconnect()
+                    Notification("Removed loopkill ID "..Target.UserId.."LOOPKILL !")
                 end
             end
         end;
@@ -712,7 +772,7 @@ Loops.PlayerChatted = LPlayer.Chatted:Connect(function(Msg)
 
         for i,Target in pairs(Targets) do
             if Target.Name ~= LPlayer.Name then
-                Beam(Target, 0, 0.5)
+                Beam(Target, math.huge, 7)
             end
         end;
 
@@ -753,14 +813,18 @@ Loops.PlayerChatted = LPlayer.Chatted:Connect(function(Msg)
 
     if Command("serverhop") or Command("shop") then
         Notification("Changing server")
-		wait(.1)
-		game:GetService("TeleportService"):Teleport(game.PlaceId)
+        wait(.1)
+        game:GetService("TeleportService"):Teleport(game.PlaceId)
     end
 
     if Command("rejoin") or Command("rj") then
         Notification("Rejoining server")
-		wait(.1)
-		game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
+        wait(.1)
+        game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
+    end
+
+    if Command("prefix") then
+        Data.Prefix = Args[2] or ";"
     end
 
     if Command("unload") then
@@ -816,6 +880,30 @@ Loops.PlayerChatted = LPlayer.Chatted:Connect(function(Msg)
             Notification("Enabled click kill!")
             return;
         end
+    end
+
+    if Command("admin") or Command("rank") or Command("wl") then
+        local Targets = GetPlayer(Args[2]);
+
+        for i,Target in pairs(Targets) do
+            if Target ~= LPlayer then
+                if table.concat(Data.BLPlayers, ","):find(Target.Name) then
+                    table.remove(Data.BLPlayers, table.find(Data.BLPlayers, Target.Name))
+                else
+                    table.remove(Data.BLPlayers, table.find(Data.BLPlayers, Target.Name))
+                end
+                Data.Admins[Target.UserId] = {
+                    Prefix = ";",
+                    IsAdmin = true,
+                }
+
+                Chat(
+                    "[Ix Admin]: You've been ranked! Use the command "..Data.Admins[Target.UserId].Prefix.."cmds to read all commands! Don't be an idiot and say ;fly. That won't work. Use cmds."
+                , Target)
+            end
+        end
+
+        Notification("Gave admin to "..table.concat(Targets, ","))
     end
 
     if Command("key") then
@@ -909,7 +997,409 @@ Loops.PlayerChatted = LPlayer.Chatted:Connect(function(Msg)
         end
     end
 
+    if Command("unadmin") then
+        local Targets = GetPlayer(Args[2]);
+
+        for i,Target in pairs(Targets) do
+            if Target ~= LPlayer then
+                Data.Admins[Target.UserId] = nil
+                table.insert(Data.BLPlayers, Target.Name)
+
+                Chat(
+                "[Ix Admin]: You've been unranked!"
+                , Target)
+            end
+        end
+
+        Notification("Gave admin to "..table.concat(Targets, ","))
+    end
+
+    if Command("keyplr") then
+        local APlayer = GetPlayer(Args[2])[1]
+        if workspace.Prison_ITEMS.single:FindFirstChild("Key card") then
+            local pos = GetPos()
+            local cpos = GetCamPos()
+            local lol = GetTeam()
+            local stop = false;
+            LoadChr(GetTeam())
+            workspace.Remote.ItemHandler:InvokeServer(workspace.Prison_ITEMS.single:FindFirstChild("Key card").ITEMPICKUP)
+            local CHAR = game.Players.LocalPlayer.Character
+            CHAR.Humanoid.Name = "1"
+            local c = CHAR["1"]:Clone()
+            c.Name = "Humanoid"
+            c.Parent = CHAR
+            CHAR["1"]:Destroy()
+            game.Workspace.CurrentCamera.CameraSubject = CHAR
+            CHAR.Animate.Disabled = true
+            wait()
+            CHAR.Animate.Disabled = false
+            CHAR.Humanoid.DisplayDistanceType = "None"
+            repeat
+                wait()
+            until LPlayer.Backpack:FindFirstChild("Key card") or LPlayer.Character:FindFirstChild("Key card")
+            if LPlayer.Backpack:FindFirstChild("Key card") then
+                LPlayer.Backpack["Key card"].Parent = LPlayer.Character;
+            end
+            local STOP = 0;
+            repeat wait(.1)
+                STOP = STOP + 1
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = APlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 0.75)
+            until (not game.Players.LocalPlayer.Character:FindFirstChild("Key card") or not game.Players.LocalPlayer.Character.HumanoidRootPart or not APlayer.Character.HumanoidRootPart or not game.Players.LocalPlayer.Character.HumanoidRootPart.Parent or not APlayer.Character.HumanoidRootPart.Parent or STOP > 500) and STOP > 3
+            LoadChr(lol)
+            Goto(pos)
+            workspace.Camera.CFrame = cpos;
+            Notification("Gave keycard");
+            return;
+        else
+            Notification("No keycards are availible. Making one");
+            local HadGod = Data.States.god == true
+            local pos = GetPos()
+            local cpos = GetCamPos()
+            local lol = GetTeam()
+            local stop = false;
+            LoadChr(GetTeam())
+            repeat
+                wait()
+                Data.States.god = true;
+                LoadChr("Bright blue")
+                LPlayer.Character:BreakJoints()
+                Goto(pos)
+                workspace.CurrentCamera.CFrame = cpos
+            until workspace.Prison_ITEMS.single:FindFirstChild("Key card") or stop == true
+            if stop==true then return; end;
+            if lol == "Medium stone grey" then lol = "Bright orange" end;
+            LoadChr(lol)
+            wait(0.3)
+            Data.States.god = HadGod;
+            if workspace.Prison_ITEMS.single:FindFirstChild("Key card") then
+                workspace.Remote.ItemHandler:InvokeServer(workspace.Prison_ITEMS.single:FindFirstChild("Key card").ITEMPICKUP)
+                local CHAR = game.Players.LocalPlayer.Character
+                CHAR.Humanoid.Name = "1"
+                local c = CHAR["1"]:Clone()
+                c.Name = "Humanoid"
+                c.Parent = CHAR
+                CHAR["1"]:Destroy()
+                game.Workspace.CurrentCamera.CameraSubject = CHAR
+                CHAR.Animate.Disabled = true
+                wait()
+                CHAR.Animate.Disabled = false
+                CHAR.Humanoid.DisplayDistanceType = "None"
+                repeat
+                    wait()
+                until LPlayer.Backpack:FindFirstChild("Key card") or LPlayer.Character:FindFirstChild("Key card")
+                if LPlayer.Backpack:FindFirstChild("Key card") then
+                    LPlayer.Backpack["Key card"].Parent = LPlayer.Character;
+                end
+                local STOP = 0
+                repeat wait(.1)
+                    STOP = STOP + 1
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = APlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 0.75)
+                until (not game.Players.LocalPlayer.Character:FindFirstChild("Key card") or not game.Players.LocalPlayer.Character.HumanoidRootPart or not APlayer.Character.HumanoidRootPart or not game.Players.LocalPlayer.Character.HumanoidRootPart.Parent or not APlayer.Character.HumanoidRootPart.Parent or STOP > 500) and STOP > 3
+                LoadChr(lol)
+                Goto(pos)
+                workspace.Camera.CFrame = cpos;
+                Notification("Gave keycard");
+                return;
+            end
+        end
+    end
+
+    if Command("bring") then
+        local Targets = GetPlayer(Args[2])
+
+        for i,Target in pairs(Targets) do
+            if Target ~= LPlayer then
+                Teleport(Target, GetPos())
+            end
+        end
+    end
+
+    if Command("void") then
+        local Targets = GetPlayer(Args[2])
+
+        for i,Target in pairs(Targets) do
+            if Target ~= LPlayer then
+                Teleport(Target, CFrame.new(9999999999,9999999999,9999999999))
+            end
+        end
+
+        Notification("Voided "..table.concat(Targets, ",")..".")
+    end
+
+    if Command("crash") or Command("lagserver") then
+        Notification("Goodbye server. LOL. IXADMIN by Ix1x0x2 or BabyShark. Might crash ur pc LMAO")
+        while true do                
+            wait()
+                while true do            
+                    wait()
+                    for i=1, 100 do
+                        local msg = "/e "..string.rep("ixadmin :))",301056)
+                        game:GetService("RunService").RenderStepped:Connect(function()
+                            Chat(msg)
+                        end)
+                    end
+                end
+            end
+        end
+
 end)
+
+function AdminChat(APlayer, Msg)
+
+    if table.find(Data.BLPlayers, APlayer.Name) then
+        return;
+    end
+
+ local function Command(cmdName)
+    if string.sub(Msg, 1,1) == (Data.Prefix) then
+            local Pee = string.split(Msg, " ")[1]
+            Pee       = string.gsub(Pee, Data.Admins[APlayer.UserId].Prefix, "");
+
+            return string.lower(Pee) == cmdName
+        end
+    end
+
+    local function Notification(Text)
+        Chat("[Ix Admin]: "..Text, APlayer)
+    end
+
+    local Args = string.split(Msg, " ");
+    
+    if Command("cmds") then
+        Notification(
+           "-- LIST OF COMMANDS. IXADMIN by Ix1x0x2 or BabyShark. ACTUALLY READ THIS, DONT SPAM IT --"
+        )
+        
+        wait(0.5)
+        
+        Notification("kill [who], goto [who], admin [who], unadmin [who], prefix [what], bring [who]")
+        
+        wait(0.5)
+        
+        Notification("location [where (e.x: ;lc crim)], key (gives only YOU keycard.), tp [who] [player]");
+    end
+
+    if Command("punish") then
+        local Targets = GetPlayer(Args[2])
+
+        for i,Target in pairs(Targets) do
+            if Target ~= LPlayer then Punish(Target) end;
+        end
+    end
+
+    if Command("kill") then
+        local Targets = GetPlayer(Args[2]);
+        
+        if #Targets == 0 then return Notification("Invalid player! Check if your word is tagged.") end;
+
+        if (Args[2]=="all") then
+            return KillAll()
+        end
+
+        for i,Target in pairs(Targets) do
+            if Target.Name ~= LPlayer.Name then
+                Kill(Target)
+            end
+        end;
+
+        Notification("Killed "..table.concat(Targets, ","))
+    end
+    
+    if Command("to") or Command("goto") then
+        local Targets = GetPlayer(Args[2]);
+        
+        if #Targets == 0 then return Notification("Invalid player! Check if your word is tagged.") end;
+
+        for i,Target in pairs(Targets) do
+            if Target.Name ~= LPlayer.Name then
+                TeleportV(APlayer, Target);
+            end
+        end;
+
+        Notification("Went to "..table.concat(Targets, ","))
+    end
+    
+    if Command("location") or Command("lc") then
+        for V, Loca in pairs(CFrames) do
+            if string.lower(V):match(string.lower(Args[2])) then
+                Teleport(APlayer, Loca)
+                Notification("Went to "..V..".")
+                return;
+            end
+        end
+    end
+    
+    if Command("admin") or Command("rank") or Command("wl") then
+        local Targets = GetPlayer(Args[2]);
+        
+        if #Targets == 0 then return Notification("Invalid player! Check if your word is tagged.") end;
+
+        for i,Target in pairs(Targets) do
+            if Target ~= LPlayer then
+                Data.Admins[Target.UserId] = {
+                    Prefix = ";",
+                    IsAdmin = true,
+                }
+
+                Chat(
+                    "[Ix Admin]: You've been ranked! Use the command "..Data.Admins[Target.UserId].Prefix.."cmds to read all commands! Don't be an idiot and say ;fly. That won't work. Use cmds."
+                , Target)
+            end
+        end
+
+        Notification("Gave admin to "..table.concat(Targets, ","))
+    end
+    
+    if Command("unadmin") then
+        local Targets = GetPlayer(Args[2]);
+        
+        if #Targets == 0 then return Notification("Invalid player! Check if your word is tagged.") end;
+
+        for i,Target in pairs(Targets) do
+            if Target ~= LPlayer then
+                Data.Admins[Target.UserId] = nil
+
+                Chat(
+                "[Ix Admin]: You've been unranked!"
+                , Target)
+            end
+        end
+
+        Notification("Gave admin to "..table.concat(Targets, ","))
+    end
+    
+    if Command("setprefix") or Command("prefix") then
+        Data.Admins[APlayer.UserId].Prefix = Args[2];
+        Notification("Set prefix to "+Args[2]+".");
+    end
+
+    if Command("key") then
+        if workspace.Prison_ITEMS.single:FindFirstChild("Key card") then
+            local pos = GetPos()
+            local cpos = GetCamPos()
+            local lol = GetTeam()
+            local stop = false;
+            LoadChr(GetTeam())
+            workspace.Remote.ItemHandler:InvokeServer(workspace.Prison_ITEMS.single:FindFirstChild("Key card").ITEMPICKUP)
+            local CHAR = game.Players.LocalPlayer.Character
+            CHAR.Humanoid.Name = "1"
+            local c = CHAR["1"]:Clone()
+            c.Name = "Humanoid"
+            c.Parent = CHAR
+            CHAR["1"]:Destroy()
+            game.Workspace.CurrentCamera.CameraSubject = CHAR
+            CHAR.Animate.Disabled = true
+            wait()
+            CHAR.Animate.Disabled = false
+            CHAR.Humanoid.DisplayDistanceType = "None"
+            repeat
+                wait()
+            until LPlayer.Backpack:FindFirstChild("Key card") or LPlayer.Character:FindFirstChild("Key card")
+            if LPlayer.Backpack:FindFirstChild("Key card") then
+                LPlayer.Backpack["Key card"].Parent = LPlayer.Character;
+            end
+            local STOP = 0;
+            repeat wait(.1)
+                STOP = STOP + 1
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = APlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 0.75)
+            until (not game.Players.LocalPlayer.Character:FindFirstChild("Key card") or not game.Players.LocalPlayer.Character.HumanoidRootPart or not APlayer.Character.HumanoidRootPart or not game.Players.LocalPlayer.Character.HumanoidRootPart.Parent or not APlayer.Character.HumanoidRootPart.Parent or STOP > 500) and STOP > 3
+            LoadChr(lol)
+            Goto(pos)
+            workspace.Camera.CFrame = cpos;
+            Notification("Gave keycard");
+            return;
+        else
+            Notification("No keycards are availible. Making one");
+            local HadGod = Data.States.god == true
+            local pos = GetPos()
+            local cpos = GetCamPos()
+            local lol = GetTeam()
+            local stop = false;
+            LoadChr(GetTeam())
+            repeat
+                wait()
+                Data.States.god = true;
+                LoadChr("Bright blue")
+                LPlayer.Character:BreakJoints()
+                Goto(pos)
+                workspace.CurrentCamera.CFrame = cpos
+            until workspace.Prison_ITEMS.single:FindFirstChild("Key card") or stop == true
+            if stop==true then return; end;
+            if lol == "Medium stone grey" then lol = "Bright orange" end;
+            LoadChr(lol)
+            wait(0.3)
+            Data.States.god = HadGod;
+            if workspace.Prison_ITEMS.single:FindFirstChild("Key card") then
+                workspace.Remote.ItemHandler:InvokeServer(workspace.Prison_ITEMS.single:FindFirstChild("Key card").ITEMPICKUP)
+                local CHAR = game.Players.LocalPlayer.Character
+                CHAR.Humanoid.Name = "1"
+                local c = CHAR["1"]:Clone()
+                c.Name = "Humanoid"
+                c.Parent = CHAR
+                CHAR["1"]:Destroy()
+                game.Workspace.CurrentCamera.CameraSubject = CHAR
+                CHAR.Animate.Disabled = true
+                wait()
+                CHAR.Animate.Disabled = false
+                CHAR.Humanoid.DisplayDistanceType = "None"
+                repeat
+                    wait()
+                until LPlayer.Backpack:FindFirstChild("Key card") or LPlayer.Character:FindFirstChild("Key card")
+                if LPlayer.Backpack:FindFirstChild("Key card") then
+                    LPlayer.Backpack["Key card"].Parent = LPlayer.Character;
+                end
+                local STOP = 0
+                repeat wait(.1)
+                    STOP = STOP + 1
+                    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = APlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 0.75)
+                until (not game.Players.LocalPlayer.Character:FindFirstChild("Key card") or not game.Players.LocalPlayer.Character.HumanoidRootPart or not APlayer.Character.HumanoidRootPart or not game.Players.LocalPlayer.Character.HumanoidRootPart.Parent or not APlayer.Character.HumanoidRootPart.Parent or STOP > 500) and STOP > 3
+                LoadChr(lol)
+                Goto(pos)
+                workspace.Camera.CFrame = cpos;
+                Notification("Gave keycard");
+                return;
+            end
+        end
+    end
+
+    if Command("bring") then
+        local Targets = GetPlayer(Args[2])
+
+        for i,Target in pairs(Targets) do
+            if Target ~= LPlayer then
+                TeleportV(Target, APlayer)
+            end
+        end
+    end
+
+    if Command("void") then
+        local Targets = GetPlayer(Args[2])
+
+        for i,Target in pairs(Targets) do
+            if Target ~= LPlayer then
+                Teleport(Target, CFrame.new(9999999999,9999999999,9999999999))
+            end
+        end
+
+        Notification("Voided "..table.concat(Targets, ",")..".")
+    end
+
+    if Command("tp") then
+        local Targets1 = GetPlayer(Args[2])
+        local Targets2 = GetPlayer(Args[3])
+
+        for i,Target1 in pairs(Targets1) do
+            if Target1 ~= LPlayer then
+                for c,T2 in pairs(Targets2) do
+                    if T2 ~= LPlayer then
+                        TeleportV(Target1, T2)
+                    end
+                end
+            end
+        end
+    end
+
+end
 
 Loops.ClickKillLoop = M.Button1Down:Connect(function()
     if Data.States.ck then
@@ -932,7 +1422,86 @@ Loops.MiscLoop = game["Run Service"].RenderStepped:Connect(function()
         AntiTaze()
     end
     if Data.States.aa then
-        AntiArrest()
+        if LPlayer.Character:FindFirstChild("Head"):FindFirstChild("handcuffedGui") then
+            local SavedCF = LPlayer.Character.HumanoidRootPart.CFrame;
+            local SavedCamCF = GetCamPos();
+            local SavedTeam = GetTeam()
+            coroutine.wrap(function()
+                wait(10.1)
+                TeamEvent("Bright orange")
+                local pooTable = {}
+                local lolTable = {}
+                local pogUsed;
+                for i,v in next, LPlayer.Backpack:GetChildren() do
+                    if v:IsA("Tool") and v.Name == "AK-47" or v.Name == "Remington 870" or v.Name == "M9" or v.Name == "M4A1" or v.Name == "Taser" then
+                        table.insert(pooTable, v.Name)
+                        table.insert(lolTable, require(v.GunStates))
+                    end
+                end
+                for i,v in next, LPlayer.Character:GetChildren() do
+                    if v:IsA("Tool") and v.Name == "AK-47" or v.Name == "Remington 870" or v.Name == "M9" or v.Name == "M4A1" or v.Name == "Taser" then
+                        table.insert(pooTable, v.Name)
+                        table.insert(lolTable, require(v.GunStates))
+                        pogUsed = v.Name;
+                    end
+                end
+                if SavedTeam == "Medium stone grey" then TeamEvent("Bright orange") end;
+                workspace.Remote.loadchar:InvokeServer(nil, BrickColor.new(SavedTeam).Name)
+                wait()
+                LPlayer.Character.ForceField:Destroy();
+                if SavedTeam == "Really red" then Goto(CFrames["Criminal Base"]) end;
+                wait()
+                LPlayer.Character.HumanoidRootPart.CFrame = SavedCF;
+                workspace.Camera.CFrame = SavedCamCF;
+                for i,v in pairs(pooTable) do
+                    GiveItem(v)
+                    repeat
+                        wait()
+                    until LPlayer.Backpack:FindFirstChild(v) or LPlayer.Character:FindFirstChild(v)
+                    if pogUsed == v then
+                        if LPlayer.Backpack:FindFirstChild(v) then
+                            LPlayer.Backpack:FindFirstChild(v).Parent = LPlayer.Character
+                        end;
+                    end
+                end
+            end)()
+            TeamEvent("Bright orange")
+            local pooTable = {}
+            local lolTable = {}
+            local pogUsed;
+            for i,v in next, LPlayer.Backpack:GetChildren() do
+                if v:IsA("Tool") and v.Name == "AK-47" or v.Name == "Remington 870" or v.Name == "M9" or v.Name == "M4A1" or v.Name == "Taser" then
+                    table.insert(pooTable, v.Name)
+                    table.insert(lolTable, require(v.GunStates))
+                end
+            end
+            for i,v in next, LPlayer.Character:GetChildren() do
+                if v:IsA("Tool") and v.Name == "AK-47" or v.Name == "Remington 870" or v.Name == "M9" or v.Name == "M4A1" or v.Name == "Taser" then
+                    table.insert(pooTable, v.Name)
+                    table.insert(lolTable, require(v.GunStates))
+                    pogUsed = v.Name;
+                end
+            end
+            if SavedTeam == "Medium stone grey" then TeamEvent("Bright orange") end;
+            workspace.Remote.loadchar:InvokeServer(nil, BrickColor.new(SavedTeam).Name)
+            wait()
+            LPlayer.Character.ForceField:Destroy();
+            if SavedTeam == "Really red" then Goto(CFrames["Criminal Base"]) end;
+            wait()
+            LPlayer.Character.HumanoidRootPart.CFrame = SavedCF;
+            workspace.Camera.CFrame = SavedCamCF;
+            for i,v in pairs(pooTable) do
+                GiveItem(v)
+                repeat
+                    wait()
+                until LPlayer.Backpack:FindFirstChild(v) or LPlayer.Character:FindFirstChild(v)
+                if pogUsed == v then
+                    if LPlayer.Backpack:FindFirstChild(v) then
+                        LPlayer.Backpack:FindFirstChild(v).Parent = LPlayer.Character
+                    end;
+                end
+            end
+        end
     end
     if Data.States.is then
         InfiniteStamina()
@@ -944,6 +1513,7 @@ Loops.GodLoop = game["Run Service"].RenderStepped:Connect(function()
         TeamEvent("Bright orange")
         local pooTable = {}
         local lolTable = {}
+        local pogUsed;
         for i,v in next, LPlayer.Backpack:GetChildren() do
             if v:IsA("Tool") and v.Name == "AK-47" or v.Name == "Remington 870" or v.Name == "M9" or v.Name == "M4A1" or v.Name == "Taser" then
                 table.insert(pooTable, v.Name)
@@ -954,6 +1524,7 @@ Loops.GodLoop = game["Run Service"].RenderStepped:Connect(function()
             if v:IsA("Tool") and v.Name == "AK-47" or v.Name == "Remington 870" or v.Name == "M9" or v.Name == "M4A1" or v.Name == "Taser" then
                 table.insert(pooTable, v.Name)
                 table.insert(lolTable, require(v.GunStates))
+                pogUsed = v.Name;
             end
         end
         local SavedCF = LPlayer.Character.HumanoidRootPart.CFrame;
@@ -962,7 +1533,7 @@ Loops.GodLoop = game["Run Service"].RenderStepped:Connect(function()
         if SavedTeam == "Medium stone grey" then TeamEvent("Bright orange") end;
         workspace.Remote.loadchar:InvokeServer(nil, BrickColor.new(SavedTeam).Name)
         wait()
-        LPlayer.Character.Forcefield:Destroy();
+        LPlayer.Character.ForceField:Destroy();
         if SavedTeam == "Really red" then Goto(CFrames["Criminal Base"]) end;
         wait()
         LPlayer.Character.HumanoidRootPart.CFrame = SavedCF;
@@ -972,14 +1543,34 @@ Loops.GodLoop = game["Run Service"].RenderStepped:Connect(function()
             repeat
                 wait()
             until LPlayer.Backpack:FindFirstChild(v) or LPlayer.Character:FindFirstChild(v)
+            if pogUsed == v then
+                if LPlayer.Backpack:FindFirstChild(v) then
+                    LPlayer.Backpack:FindFirstChild(v).Parent = LPlayer.Character
+                end;
+            end
         end
+    end
+end)
+
+Loops.AntiLagLoop = game.Workspace.DescendantAdded:Connect(function(descendant)
+    wait(0.1)
+    if descendant:IsA("BasePart") then
+        descendant.Material = Enum.Material.SmoothPlastic;
+    end
+
+    if descendant:IsA("Texture") then
+        descendant:Destroy()
+    end
+
+    if descendant:IsA("Decal") then
+        descendant:Destroy()
     end
 end)
 
 game.Players.PlayerRemoving:Connect(function(Plr)
     if Plr.Name ~= LPlayer.Name then
         Loops[Plr.UserId.."LOOPKILL"] = nil;
-    end
+    end;
 end)
 
 LPlayer.CharacterAdded:Connect(function()
@@ -992,5 +1583,64 @@ LPlayer.CharacterAdded:Connect(function()
     humanoid:SetStateEnabled(stateType.Ragdoll, false)
 end)
 
+for i,P in pairs(game.Workspace:GetDescendants()) do
+    if P:IsA("BasePart") then
+        P.Material = Enum.Material.SmoothPlastic;
+    elseif P:IsA("Texture") then
+        P:Destroy()
+    elseif P:IsA("Decal") then
+        P:Destroy()
+    end
+end
 
-Notification("Loaded IxAdmin by Ix1x0x2");
+for i,NormalPlayer in pairs(game.Players:GetPlayers()) do
+    NormalPlayer.Chatted:Connect(function(Msg)
+        if Data.Admins[NormalPlayer.UserId] ~= nil then
+            AdminChat(NormalPlayer, Msg)
+        end
+    end)
+end
+
+game.Players.PlayerAdded:Connect(function(NormalPlayer)
+    NormalPlayer.Chatted:Connect(function(Msg)
+        if Data.Admins[NormalPlayer.UserId] ~= nil then
+            AdminChat(NormalPlayer, Msg)
+        end
+    end)
+end)
+
+
+Notification("Loaded IxAdmin by Ix1x0x2 or BabyShark");
+
+LPlayer.PlayerGui.Chat.Frame.ChatChannelParentFrame.Frame_MessageLogDisplay.Scroller.ChildAdded:Connect(function(Child)
+    local Msg = Child.TextLabel;
+    print(Msg.Text)
+    if string.match(Msg.Text, "You are now on the '") then
+        wait()
+        Msg.Text = "Msg deleted by IXADMIN. Team message.";
+        wait(0.5)
+        Child:Destroy();
+    end
+end)
+
+coroutine.wrap(function()
+if game.PlaceId == 155615604 then
+
+    local rs = game:GetService("RunService")
+    local fps
+    local ratio
+    local number = 0
+    
+    while true do
+        fps = 1/(rs.Heartbeat:Wait())
+        if fps > 60 then
+           game.Players.LocalPlayer.PlayerGui.Home.fadeFrame:Destroy()
+            end
+        
+        ratio = 60/fps
+        
+        number = number + 1
+        local position = ((4 * 100) * number) * ratio  
+    end
+    end
+end)()
